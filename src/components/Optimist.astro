@@ -1,0 +1,29 @@
+---
+// Yandan görünüşte bir optimist: küt baş, sprit yelken, can yelekli küçük yelkenci.
+interface Props { class?: string; sail?: string; hull?: string; sailor?: boolean; title?: string }
+const { class: cls, sail = 'var(--paper)', hull = '#fff', sailor = true, title } = Astro.props;
+---
+<svg class={cls} viewBox="0 0 100 100" role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'} aria-label={title}>
+  <g class="opti-sail-g">
+    <!-- direk -->
+    <line x1="40" y1="12" x2="40" y2="76" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" />
+    <!-- yelken -->
+    <path class="opti-sail" d="M41.5 70 L41.5 18 L79 7 Q84 36 83 66 Z" fill={sail} stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" />
+    <!-- sprit -->
+    <line x1="41.5" y1="60" x2="78" y2="8.5" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" opacity="0.7" />
+    <!-- bumba -->
+    <line x1="40" y1="70.5" x2="83" y2="66.5" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" />
+    <!-- yelken numarası -->
+    <text x="60" y="48" font-family="var(--font-body)" font-weight="700" font-size="11" fill="var(--sea)" text-anchor="middle">ÇY</text>
+  </g>
+  {sailor && (
+    <g class="opti-sailor">
+      <circle cx="66" cy="66" r="4.6" fill="#f2c9a5" stroke="var(--ink)" stroke-width="1.4" />
+      <path d="M61.5 64.5 q4.5 -6 9 0" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.2" />
+      <rect x="61" y="70" width="10" height="9" rx="3" fill="#e8463a" stroke="var(--ink)" stroke-width="1.4" />
+    </g>
+  )}
+  <!-- tekne -->
+  <path d="M12 76 L90 76 Q89 86 80 88 L22 88 Q14 87 12 76 Z" fill={hull} stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" />
+  <path d="M15 80 L88 80" stroke="var(--sea)" stroke-width="2" />
+</svg>

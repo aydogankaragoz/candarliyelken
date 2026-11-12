@@ -1,0 +1,231 @@
+---
+import { u } from '../lib/url';
+import { Picture } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Programs from '../components/Programs.astro';
+import Journey from '../components/Journey.astro';
+import Adb from '../components/Adb.astro';
+import GalleryGrid from '../components/GalleryGrid.astro';
+import { club, news, docs } from '../data/site';
+import { gallery } from '../data/gallery';
+import { galleryImg, photo } from '../lib/images';
+
+const picks = ['g01.jpg', 'g40.jpg', 'g11.jpg', 'g33.jpg', 'g17.jpg', 'g21.jpg', 'g37.jpg', 'g45.jpg', 'g12.jpg', 'g29.jpg', 'g19.jpg', 'g46.jpg'];
+const featured = picks.map((f) => gallery.find((g) => g.file === f)!);
+const years = new Date().getFullYear() - club.founded;
+---
+<Layout>
+  <Hero />
+
+  <!-- Biz kimiz -->
+  <section class="section about" id="kulup" data-buoy="Kulüp">
+    <div class="wrap about-grid">
+      <div class="about-media reveal">
+        <Picture src={galleryImg('g31.jpg')} formats={['avif', 'webp']} widths={[480, 800]} sizes="(max-width: 900px) 92vw, 45vw" alt="Dönemin son gününde çocuklar ve veliler iskelede, optimistlerin yanında" />
+        <Picture class="inset" src={galleryImg('g44.jpg')} formats={['avif', 'webp']} widths={[320, 480]} sizes="240px" alt="Kulübün ilk yıllarından, 2010 festivalinde üyeler" />
+      </div>
+      <div class="reveal">
+        <p class="eyebrow">Biz kimiz</p>
+        <h2 class="h2">On bir kişiyle başladı, bir kasabanın kulübü oldu.</h2>
+        <p class="lead">Yelkene gönül vermiş on bir kişi, 2008’de Çandarlı körfezinde yelkeni sevdirmek, bu spora ilgiyi artırmak ve yelkenci yetiştirmek için bir araya geldi.</p>
+        <p>İlk optimistimizi belediyemizin hediyeleri izledi, servis botumuz bir kurucu üyemizin bağışıyla denize indi. Bugün yaz okulunda optimist, rüzgâr sörfü ve yatçılık eğitimi veriyor, kış boyunca hafta sonları antrenmanlara devam ediyoruz. Veliler iskelede çocuklarını izliyor, çocuklar çevre temizliğine katılıyor, okulları ziyaret edip yelkeni anlatıyoruz.</p>
+        <ul class="stats">
+          <li><strong>{years}</strong><span>yıldır denizdeyiz</span></li>
+          <li><strong>3</strong><span>dal: optimist, rüzgâr sörfü, yatçılık</span></li>
+          <li><strong>7+</strong><span>yaşından itibaren</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <Programs />
+  <Journey />
+  <Adb />
+
+  <!-- Haberler -->
+  <section class="section news" id="haberler" data-buoy="Haberler">
+    <div class="wrap news-grid">
+      <header class="news-head">
+        <p class="eyebrow">Seyir defteri</p>
+        <h2 class="h2">Kulüpten haberler</h2>
+        <p class="lead">Yarışlar, ziyaretler, ilk denemeler: kulübün kuruluşundan bugüne seyir defteri.</p>
+        <figure class="news-photo">
+          <Picture src={photo('funboard-2021.jpg')} formats={['avif', 'webp']} widths={[400, 785]} sizes="(max-width: 900px) 92vw, 30vw" alt="TYF 2021 Funboard Slalom Ligi’nde kulübün sporcuları ve antrenörleri" />
+          <figcaption>TYF 2021 Funboard Slalom Ligi</figcaption>
+        </figure>
+      </header>
+      <ol class="log">
+        {news.map((n) => (
+          <li class="reveal">
+            <time>{n.date}</time>
+            <div>
+              <h3>{n.href ? <a href={n.href} target="_blank" rel="noopener">{n.title} ↗</a> : n.title}</h3>
+              <p>{n.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Galeri -->
+  <section class="section" id="galeri" data-buoy="Galeri">
+    <div class="wrap">
+      <div class="gal-head reveal">
+        <div>
+          <p class="eyebrow">Galeri</p>
+          <h2 class="h2">Tuzlu, güneşli, kahkahalı</h2>
+        </div>
+        <a class="btn btn--ghost" href={u("/galeri")}>Tüm fotoğraflar ({gallery.length})</a>
+      </div>
+      <GalleryGrid items={featured} />
+    </div>
+  </section>
+
+  <!-- Başvuru & belgeler -->
+  <section class="section apply" id="basvuru" data-buoy="Başvuru">
+    <div class="wrap apply-grid">
+      <div class="reveal">
+        <p class="eyebrow">Kayıt ve başvuru</p>
+        <h2 class="h2">Denize çıkmak üç adım</h2>
+        <ol class="how">
+          <li><span><strong>Bizi arayın ya da yazın.</strong> Uygun programı ve dönemi birlikte seçelim.</span></li>
+          <li><span><strong>Formları doldurun.</strong> Üyelik ya da lisans için gereken belgeler yanda; eğitim kayıt formunu size iletiriz.</span></li>
+          <li><span><strong>Ücreti yatırın.</strong> Havale/EFT ya da kredi kartıyla. Gerisi rüzgâra kalmış.</span></li>
+        </ol>
+        <div class="pay">
+          <p class="pay-label">IBAN · {club.name}</p>
+          <div class="iban">
+            <code data-iban>{club.iban}</code>
+            <button class="copy" data-copy={club.iban.replaceAll(' ', '')} aria-label="IBAN’ı kopyala">Kopyala</button>
+          </div>
+          <a class="card-pay" href="https://candarliyelken.org.tr/index.php?il=bagis" target="_blank" rel="noopener">Kredi kartıyla güvenli ödeme ↗</a>
+        </div>
+      </div>
+      <div class="docs reveal">
+        <h3>Belgeler ve formlar</h3>
+        <ul>
+          {docs.map((d) => (
+            <li><a href={u(d.href)} target="_blank" rel="noopener"><span class="kind">{d.kind}</span>{d.title}<span class="arr" aria-hidden="true">↗</span></a></li>
+          ))}
+        </ul>
+        <p class="docs-note">Sporcu lisansı olmayanlar yelken yarışlarına katılamaz. Lisans işlemlerinde kulüple ilişki belgesi gerekir.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- İletişim -->
+  <section class="section contact" id="iletisim" data-buoy="İletişim">
+    <div class="wrap contact-grid">
+      <div class="reveal">
+        <p class="eyebrow">İletişim</p>
+        <h2 class="h2">İskeleye bekleriz</h2>
+        <address>
+          <p class="addr">{club.address}</p>
+          <p><a class="big-link" href={club.phoneHref}>{club.phone}</a></p>
+          <p><a class="big-link" href={`mailto:${club.email}`}>{club.email}</a></p>
+        </address>
+        <ul class="people">
+          {club.contacts.map((c) => <li><span>{c.name}</span><a href={c.href}>{c.phone}</a></li>)}
+        </ul>
+        <a class="btn" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Çandarlı Yelken ve Su Sporları Kulübü, ' + club.address)}`} target="_blank" rel="noopener">Yol tarifi ↗</a>
+      </div>
+      <div class="map reveal">
+        <iframe
+          title="Çandarlı Yelken Kulübü konumu"
+          loading="lazy"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${club.coords.lon - 0.02}%2C${club.coords.lat - 0.012}%2C${club.coords.lon + 0.02}%2C${club.coords.lat + 0.012}&layer=mapnik`}
+        ></iframe>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy!); b.textContent = 'Kopyalandı ✓'; }
+      catch { b.textContent = 'Kopyalanamadı'; }
+      setTimeout(() => (b.textContent = 'Kopyala'), 2200);
+    }),
+  );
+</script>
+
+<style>
+  /* Biz kimiz */
+  .about-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  .about-media { position: relative; padding-bottom: 3rem; }
+  .about-media > :global(picture:first-child img) { border-radius: 44% 56% 48% 52% / 40% 42% 58% 60%; box-shadow: var(--shadow); aspect-ratio: 1 / 0.95; object-fit: cover; }
+  .about-media :global(img.inset) { position: absolute; right: -1rem; bottom: 0; width: 46%; border: 6px solid var(--paper); border-radius: 1rem; rotate: 4deg; box-shadow: var(--shadow); }
+  .about p:not(.eyebrow):not(.lead) { margin-top: 1rem; max-width: 60ch; }
+  .stats { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+  .stats li { border-top: 2px solid var(--ink); padding-top: 0.7rem; }
+  .stats strong { display: block; font-family: var(--font-display); font-size: var(--step-3); font-weight: 500; line-height: 1; color: var(--sea); }
+  .stats span { display: block; font-size: 0.92rem; line-height: 1.4; color: var(--ink-soft); margin-top: 0.3rem; }
+
+  /* Haberler */
+  .news { background: var(--paper); }
+  .news-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .news-head { position: sticky; top: 6.5rem; }
+  .news-photo { margin: 2rem 0 0; }
+  .news-photo :global(img) { border-radius: var(--radius); box-shadow: var(--shadow); }
+  .news-photo figcaption { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.6rem; font-style: italic; }
+  .log { list-style: none; padding: 0; position: relative; }
+  .log::before { content: ''; position: absolute; left: 7.4rem; top: 0.6rem; bottom: 0; border-left: 2px dashed var(--sea-light); }
+  .log li { display: grid; grid-template-columns: 6.5rem 1fr; gap: 2rem; padding-bottom: 2rem; position: relative; }
+  .log li::before { content: ''; position: absolute; left: calc(7.4rem - 6px); top: 0.45rem; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2.5px solid var(--sea); }
+  .log li:first-child::before { background: var(--sun); border-color: var(--ink); }
+  .log time { font-size: 0.88rem; font-weight: 700; color: var(--sea); text-align: right; padding-top: 0.15rem; }
+  .log h3 { font-size: var(--step-1); margin-bottom: 0.3rem; }
+  .log h3 a { text-decoration-color: var(--sun); text-underline-offset: 4px; }
+  .log p { color: var(--ink-soft); font-size: 0.98rem; }
+
+  .gal-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 2rem; }
+
+  /* Başvuru */
+  .apply { background: var(--sea-deep); color: var(--paper); }
+  .apply .eyebrow { color: var(--sun-soft); }
+  .apply-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+  .how { list-style: none; padding: 0; counter-reset: h; display: grid; gap: 1.1rem; margin: 1.5rem 0 2.5rem; }
+  .how li { counter-increment: h; display: grid; grid-template-columns: 2.6rem 1fr; gap: 0.9rem; color: oklch(0.88 0.03 230); }
+  .how li::before { content: counter(h); width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--sun); color: var(--ink); font-weight: 800; font-family: var(--font-display); font-size: 1.2rem; }
+  .how strong { color: #fff; display: block; }
+  .pay { background: oklch(1 0 0 / 0.07); border: 1px solid oklch(1 0 0 / 0.14); border-radius: var(--radius); padding: 1.3rem 1.4rem; }
+  .pay-label { font-size: 0.82rem; opacity: 0.75; }
+  .iban { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 0.35rem 0 1rem; }
+  .iban code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.2rem); letter-spacing: 0.04em; }
+  .copy { border: 0; border-radius: 999px; background: var(--paper); color: var(--ink); padding: 0.35rem 0.9rem; font-weight: 650; font-size: 0.9rem; }
+  .card-pay { color: var(--sun-soft); font-weight: 600; }
+  .docs h3 { font-size: var(--step-2); margin-bottom: 1rem; }
+  .docs ul { list-style: none; padding: 0; }
+  .docs li a { display: flex; gap: 0.9rem; align-items: center; padding: 0.85rem 0.2rem; border-bottom: 1px solid oklch(1 0 0 / 0.14); text-decoration: none; transition: padding 0.3s var(--ease-out), color 0.2s; }
+  .docs li a:hover { padding-left: 0.7rem; color: var(--sun-soft); }
+  .kind { flex: none; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; padding: 0.2rem 0.45rem; border-radius: 0.4rem; background: oklch(1 0 0 / 0.12); min-width: 3.4rem; text-align: center; }
+  .arr { margin-left: auto; opacity: 0.6; }
+  .docs-note { margin-top: 1.25rem; font-size: 0.92rem; opacity: 0.75; }
+
+  /* İletişim */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  address { font-style: normal; margin: 1.25rem 0; display: grid; gap: 0.35rem; }
+  .addr { font-size: var(--step-1); color: var(--ink-soft); }
+  .big-link { font-family: var(--font-display); font-size: var(--step-2); text-decoration-color: var(--sun); text-underline-offset: 6px; text-decoration-thickness: 2px; overflow-wrap: anywhere; }
+  .people { list-style: none; padding: 0; margin-bottom: 1.75rem; display: grid; gap: 0.3rem; }
+  .people li { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .people span { min-width: 9rem; color: var(--ink-soft); }
+  .map { aspect-ratio: 4 / 3; border-radius: calc(var(--radius) + 0.6rem); overflow: hidden; box-shadow: var(--shadow); border: 6px solid #fff; rotate: 1deg; }
+  .map iframe { width: 100%; height: 100%; border: 0; }
+
+  @media (max-width: 900px) {
+    .about-grid, .news-grid, .apply-grid, .contact-grid { grid-template-columns: 1fr; }
+    .news-head { position: static; }
+    }
+  @media (max-width: 560px) {
+    .log::before { left: 0.4rem; }
+    .log li { grid-template-columns: 1fr; gap: 0.2rem; padding-left: 1.8rem; }
+    .log li::before { left: -0.05rem; }
+    .log time { text-align: left; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stats li:last-child { grid-column: span 2; }
+  }
+</style>

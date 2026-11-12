@@ -1,0 +1,126 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import { galleryImg } from '../lib/images';
+
+interface Props { items: readonly { file: string; year: number; caption: string }[]; filters?: boolean }
+const { items, filters = false } = Astro.props;
+const years = [...new Set(items.map((i) => i.year))].sort((a, b) => b - a);
+// Büyük görüntü için optimize edilmiş tam boy
+const full = await Promise.all(items.map((i) => getImage({ src: galleryImg(i.file), width: 1600, format: 'webp' })));
+---
+<div class="gallery" data-gallery>
+  {filters && (
+    <div class="filters" role="group" aria-label="Yıla göre süz">
+      <button aria-pressed="true" data-year="all">Tümü</button>
+      {years.map((y) => <button aria-pressed="false" data-year={y}>{y}</button>)}
+    </div>
+  )}
+  <ul class="grid">
+    {items.map((it, i) => (
+      <li data-y={it.year}>
+        <button class="tile" data-full={full[i].src} data-cap={`${it.caption} · ${it.year}`} aria-label={`Büyüt: ${it.caption}, ${it.year}`}>
+          <Picture src={galleryImg(it.file)} formats={['avif', 'webp']} widths={[360, 640]} sizes="(max-width: 600px) 48vw, (max-width: 1100px) 32vw, 300px" alt={it.caption} />
+          <span class="cap"><strong>{it.year}</strong> {it.caption}</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <dialog class="lightbox" aria-label="Fotoğraf">
+    <figure>
+      <img alt="" />
+      <figcaption></figcaption>
+    </figure>
+    <button class="lb-btn lb-prev" aria-label="Önceki">‹</button>
+    <button class="lb-btn lb-next" aria-label="Sonraki">›</button>
+    <button class="lb-btn lb-close" aria-label="Kapat" autofocus>×</button>
+  </dialog>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const dlg = root.querySelector('dialog')!;
+    const img = dlg.querySelector('img')!;
+    const cap = dlg.querySelector('figcaption')!;
+    const visible = () => [...root.querySelectorAll<HTMLButtonElement>('li:not([hidden]) .tile')];
+    let idx = 0;
+    const show = (i: number) => {
+      const list = visible();
+      idx = (i + list.length) % list.length;
+      const t = list[idx];
+      img.src = t.dataset.full!;
+      img.alt = t.querySelector('img')?.alt ?? '';
+      cap.textContent = t.dataset.cap!;
+    };
+    root.addEventListener('click', (e) => {
+      const tile = (e.target as HTMLElement).closest<HTMLButtonElement>('.tile');
+      if (tile) { show(visible().indexOf(tile)); dlg.showModal(); }
+    });
+    dlg.querySelector('.lb-prev')!.addEventListener('click', () => show(idx - 1));
+    dlg.querySelector('.lb-next')!.addEventListener('click', () => show(idx + 1));
+    dlg.querySelector('.lb-close')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(idx + 1);
+      if (e.key === 'ArrowLeft') show(idx - 1);
+    });
+    // Kaydırma hareketiyle geçiş
+    let sx = 0;
+    dlg.addEventListener('touchstart', (e) => (sx = e.touches[0].clientX), { passive: true });
+    dlg.addEventListener('touchend', (e) => { const d = e.changedTouches[0].clientX - sx; if (Math.abs(d) > 50) show(idx + (d < 0 ? 1 : -1)); });
+
+    const btns = root.querySelectorAll<HTMLButtonElement>('[data-year]');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      const apply = () => {
+        btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        root.querySelectorAll<HTMLElement>('li[data-y]').forEach((li) => (li.hidden = b.dataset.year !== 'all' && li.dataset.y !== b.dataset.year));
+      };
+      if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(apply); else apply();
+    }));
+  });
+</script>
+
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.75rem; }
+  .filters button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 0.4rem 1rem; font-weight: 600; }
+  .filters button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+  .grid { list-style: none; padding: 0; columns: 4 15rem; column-gap: 0.9rem; }
+  .grid li { break-inside: avoid; margin-bottom: 0.9rem; }
+  .tile { position: relative; display: block; width: 100%; padding: 0; border: 0; border-radius: 1rem; overflow: hidden; background: var(--paper-2); }
+  .tile :global(img) { width: 100%; transition: scale 0.9s var(--ease-out), filter 0.4s; }
+  .tile:hover :global(img) { scale: 1.05; }
+  .grid li:nth-child(3n + 1) .tile :global(img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  .cap {
+    position: absolute; inset: auto 0 0; padding: 2rem 0.9rem 0.75rem; text-align: left;
+    color: #fff; font-size: 0.9rem; line-height: 1.35;
+    background: linear-gradient(transparent, oklch(0.2 0.05 255 / 0.85));
+    opacity: 0; translate: 0 0.5rem; transition: opacity 0.3s, translate 0.4s var(--ease-out);
+  }
+  .cap strong { color: var(--sun-soft); margin-right: 0.25rem; }
+  .tile:hover .cap, .tile:focus-visible .cap { opacity: 1; translate: 0 0; }
+  @media (hover: none) { .cap { opacity: 1; translate: 0 0; } }
+
+  .lightbox {
+    width: 100vw; height: 100dvh; max-width: none; max-height: none; padding: 0; border: 0;
+    background: oklch(0.16 0.04 255 / 0.94); color: #fff;
+    opacity: 0; transition: opacity 0.3s, display 0.3s allow-discrete, overlay 0.3s allow-discrete;
+  }
+  .lightbox[open] { opacity: 1; display: grid; place-items: center; }
+  @starting-style { .lightbox[open] { opacity: 0; } }
+  .lightbox::backdrop { background: transparent; }
+  .lightbox figure { margin: 0; display: grid; gap: 0.8rem; justify-items: center; padding: 4rem 4.5rem 2rem; }
+  .lightbox img { max-width: 100%; max-height: 80dvh; border-radius: 0.75rem; object-fit: contain; }
+  .lightbox figcaption { font-family: var(--font-display); font-size: var(--step-1); font-style: italic; text-align: center; }
+  .lb-btn { position: absolute; width: 52px; height: 52px; border-radius: 50%; border: 0; background: oklch(1 0 0 / 0.12); color: #fff; font-size: 2rem; line-height: 1; display: grid; place-items: center; }
+  .lb-btn:hover { background: oklch(1 0 0 / 0.24); }
+  .lb-prev { left: 1rem; top: 50%; translate: 0 -50%; }
+  .lb-next { right: 1rem; top: 50%; translate: 0 -50%; }
+  .lb-close { right: 1rem; top: 1rem; }
+  @media (max-width: 600px) {
+    .grid { columns: 2; column-gap: 0.5rem; }
+    .grid li { margin-bottom: 0.5rem; }
+    .lightbox figure { padding: 4rem 0.75rem 5rem; }
+    .lb-prev, .lb-next { top: auto; bottom: 1rem; translate: none; }
+  }
+</style>

@@ -1,0 +1,133 @@
+---
+import Optimist from './Optimist.astro';
+---
+<!--
+  Sayfa boyunca bir yarış rotası: kaydırdıkça optimist rotadan aşağı süzülür,
+  bölüm şamandıralarının önünden geçer. Şamandıralara tıklayınca o bölüme gidilir.
+  Dar ekranda başlığın altında soldan sağa ilerleyen bir mini rota olur.
+-->
+<div class="course" data-course aria-hidden="true">
+  <svg class="course-svg"><path class="course-path" /><path class="course-wake" pathLength="1" /></svg>
+  <div class="buoys"></div>
+  <div class="boat"><div class="boat-tilt"><div class="boat-bob"><Optimist /></div></div></div>
+  <div class="mini"><span class="mini-line"></span><span class="mini-boat"><Optimist sailor={false} /></span></div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-course]');
+  if (root) {
+    const svg = root.querySelector('svg')!;
+    const path = root.querySelector<SVGPathElement>('.course-path')!;
+    const wake = root.querySelector<SVGPathElement>('.course-wake')!;
+    const boat = root.querySelector<HTMLElement>('.boat')!;
+    const tilt = root.querySelector<HTMLElement>('.boat-tilt')!;
+    const buoyLayer = root.querySelector<HTMLElement>('.buoys')!;
+    const miniBoat = root.querySelector<HTMLElement>('.mini-boat')!;
+
+    let W = 0, H = 0, top = 0, legs = 5;
+    const amp = () => W * 0.32;
+    const x = (t: number) => W / 2 + amp() * Math.sin(Math.PI * legs * t);
+    const dx = (t: number) => amp() * Math.PI * legs * Math.cos(Math.PI * legs * t);
+
+    const progress = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      return max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    };
+
+    function layout() {
+      const r = root!.getBoundingClientRect();
+      W = r.width; H = r.height; top = 0;
+      legs = Math.max(3, Math.round(H / 170));
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      let d = '';
+      for (let i = 0; i <= 200; i++) { const t = i / 200; d += `${i ? 'L' : 'M'}${x(t).toFixed(1)} ${(top + t * H).toFixed(1)}`; }
+      path.setAttribute('d', d);
+      wake.setAttribute('d', d);
+      placeBuoys();
+      update();
+    }
+
+    function placeBuoys() {
+      buoyLayer.replaceChildren();
+      const max = document.documentElement.scrollHeight - innerHeight;
+      document.querySelectorAll<HTMLElement>('[data-buoy]').forEach((sec) => {
+        const t = Math.min(1, Math.max(0, (sec.getBoundingClientRect().top + scrollY - 80) / max));
+        const b = document.createElement('button');
+        b.className = 'buoy';
+        b.style.translate = `${x(t)}px ${t * H}px`;
+        b.dataset.label = sec.dataset.buoy!;
+        b.tabIndex = -1;
+        b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+        buoyLayer.append(b);
+      });
+    }
+
+    let lastFacing = 1;
+    function update() {
+      const p = progress();
+      const bx = x(p), by = top + p * H;
+      const slope = dx(p);
+      // Tekne sola bakıyor; sağa giderken aynala. Kavança anında yön değişir.
+      const facing = slope >= 0 ? -1 : 1;
+      if (facing !== lastFacing) { boat.classList.remove('gybe'); void boat.offsetWidth; boat.classList.add('gybe'); lastFacing = facing; }
+      // Ne kadar dik iniyorsa başı o kadar aşağı: dalgadan kayıyor gibi
+      const steep = Math.atan2(H / legs, Math.abs(slope) + 1) * (180 / Math.PI);
+      boat.style.translate = `${bx}px ${by}px`;
+      tilt.style.transform = `scaleX(${facing}) rotate(${-Math.min(28, steep * 0.35)}deg)`;
+      wake.style.strokeDashoffset = String(1 - p);
+      miniBoat.style.left = `${p * 100}%`;
+    }
+
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(() => { update(); ticking = false; }); }
+    }, { passive: true });
+    new ResizeObserver(layout).observe(document.body);
+    addEventListener('load', layout);
+    layout();
+  }
+</script>
+
+<style is:global>
+  .course {
+    position: fixed; z-index: 40; pointer-events: none;
+    top: 104px; bottom: 48px; right: max(10px, calc((100vw - 76rem) / 2 - 92px)); width: 76px;
+  }
+  .course-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .course-path { fill: none; stroke: var(--sea-light); stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; }
+  .course-wake { fill: none; stroke: var(--sea); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linecap: round; opacity: 0.55; }
+
+  .buoy {
+    position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; padding: 0;
+    border-radius: 50%; border: 2px solid var(--ink); background: var(--sun);
+    pointer-events: auto; box-shadow: 0 0 0 4px oklch(0.73 0.17 55 / 0.18);
+  }
+  .buoy::after {
+    content: attr(data-label); position: absolute; right: 22px; top: 50%; translate: 0 -50%;
+    white-space: nowrap; font-size: 0.8rem; font-weight: 650; background: var(--ink); color: var(--paper);
+    padding: 0.2rem 0.55rem; border-radius: 999px; opacity: 0; transition: opacity 0.2s, right 0.25s var(--ease-out);
+  }
+  .buoy:hover::after { opacity: 1; right: 26px; }
+
+  .boat { position: absolute; left: -26px; top: -42px; width: 52px; height: 52px; will-change: translate; }
+  .boat-tilt { width: 100%; height: 100%; transition: transform 0.5s var(--ease-out); }
+  .boat .opti-sail-g { transform-origin: 40px 70px; transform-box: view-box; }
+  .boat.gybe .opti-sail-g { animation: gybe 0.7s var(--ease-out); }
+  @keyframes gybe { 0% { transform: scaleX(0.2); } 60% { transform: scaleX(1.08); } 100% { transform: none; } }
+  @media (prefers-reduced-motion: no-preference) {
+    .boat-bob { animation: bob 3.2s ease-in-out infinite; }
+  }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(3px) rotate(3deg); } }
+
+  .mini { display: none; }
+
+  /* Rota yalnızca içerik yanında yer varsa yanda; yoksa başlığın altında mini rota */
+  @media (max-width: 1399px) {
+    .course { top: 0; bottom: auto; right: 0; left: 0; width: auto; height: 0; z-index: 51; }
+    .course-svg, .buoys, .boat { display: none; }
+    .mini { display: block; position: fixed; top: 72px; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity 0.3s; }
+    .site-header[data-scrolled] ~ .course .mini { opacity: 1; }
+    .mini-line { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--sea-light) 0 4px, transparent 4px 10px); }
+    .mini-boat { position: absolute; bottom: -2px; width: 30px; height: 30px; translate: -50% 0; transform: scaleX(-1); }
+  }
+</style>

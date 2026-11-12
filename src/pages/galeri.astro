@@ -1,0 +1,24 @@
+---
+import { u } from '../lib/url';
+import Layout from '../layouts/Layout.astro';
+import GalleryGrid from '../components/GalleryGrid.astro';
+import { gallery } from '../data/gallery';
+---
+<Layout title="Galeri · Çandarlı Yelken" description="2010’dan bugüne Çandarlı Yelken: yaz okulları, yarışlar, festivaller ve ADB eğitimleri." course={false}>
+  <section class="section page">
+    <div class="wrap">
+      <a class="back" href={u("/")}>← Ana sayfa</a>
+      <p class="eyebrow">Galeri</p>
+      <h1 class="h2">2010’dan bugüne iskelemiz</h1>
+      <p class="lead">Festivaller, yaz okulları, ilk tramolalar, Samsun’daki Atatürk Kupası. Bir fotoğrafa tıklayıp büyütebilir, ok tuşlarıyla gezinebilirsiniz.</p>
+      <div class="spacer"></div>
+      <GalleryGrid items={gallery} filters />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page { padding-top: 8rem; }
+  .back { display: block; width: fit-content; margin-bottom: 1.5rem; font-weight: 600; color: var(--sea); text-decoration: none; }
+  .spacer { height: 2.5rem; }
+</style>

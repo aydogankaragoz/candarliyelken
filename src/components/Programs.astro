@@ -1,0 +1,145 @@
+---
+import { u } from '../lib/url';
+import { Picture } from 'astro:assets';
+import { programs, optimistTerms } from '../data/site';
+import { galleryImg } from '../lib/images';
+import Optimist from './Optimist.astro';
+---
+<section id="egitimler" class="section programs" data-buoy="Eğitimler">
+  <div class="wrap">
+    <header class="head reveal">
+      <p class="eyebrow">2026 eğitimleri</p>
+      <h2 class="h2">Yedi yaşında da başlanır, yetmiş yaşında da.</h2>
+      <p class="lead">Teknelerimiz, antrenörlerimiz ve Çandarlı’nın düzenli rüzgârı hazır. Size uyan programı seçin.</p>
+    </header>
+
+    <div class="cards">
+      {programs.map((p, i) => (
+        <article class={`card reveal card--${p.id}`} id={`program-${p.id}`}>
+          <div class="card-media">
+            <Picture src={galleryImg(p.photo)} formats={['avif', 'webp']} widths={[400, 700]} sizes="(max-width: 900px) 92vw, 30vw" alt="" />
+            <span class="kicker">{p.kicker}</span>
+          </div>
+          <div class="card-body">
+            <h3>{p.title}</h3>
+            <dl class="facts">
+              <div><dt>Kimler</dt><dd>{p.who}</dd></div>
+              <div><dt>Süre</dt><dd>{p.duration}</dd></div>
+              <div><dt>Zaman</dt><dd>{p.schedule}</dd></div>
+              <div class="fee"><dt>Ücret</dt><dd>{p.fee}</dd></div>
+            </dl>
+            <p class="note">{p.note}</p>
+            <details>
+              <summary>Neler öğreneceğiz?</summary>
+              {p.curriculum.map((c) => (
+                <div class="cur">
+                  <h4>{c.title}</h4>
+                  <ul>{c.items.map((it) => <li>{it}</li>)}</ul>
+                </div>
+              ))}
+            </details>
+            <a class="pdf" href={u(p.pdf)} target="_blank" rel="noopener">Program broşürü (PDF) ↗</a>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Optimist dönemleri: kaydırdıkça küçük optimist dönemler boyunca ilerler -->
+    <div class="terms reveal" aria-labelledby="terms-title">
+      <div class="terms-head">
+        <h3 id="terms-title">2026 Optimist yaz okulu dönemleri</h3>
+        <p>Her dönem iki hafta, hafta içi her gün. Hava gerektirirse 14.00–17.00 arası.</p>
+      </div>
+      <div class="track">
+        <span class="track-boat" aria-hidden="true"><Optimist /></span>
+        <ol>
+          {optimistTerms.map((t) => (
+            <li><span class="tn">{t.n}. dönem</span><span class="td">{t.from} – {t.to}</span></li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <aside class="extra reveal">
+      <div>
+        <h3>Rüzgâr sörfü de var</h3>
+        <p>2020’den beri Çandarlı Windsurf Center bünyemizde. Yaz okulunda optimist ve yatçılığın yanında rüzgâr sörfü dersleri de veriyoruz. Ayrıntılar için bizi arayın.</p>
+      </div>
+      <a class="btn btn--ghost" href="#iletisim">Bilgi alın</a>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .programs { background: var(--paper); }
+  .head { max-width: 46rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: clamp(1rem, 2.5vw, 2rem); align-items: start; }
+  .card {
+    background: #fff; border-radius: calc(var(--radius) + 0.4rem); overflow: hidden;
+    box-shadow: var(--shadow); container-type: inline-size;
+    transition: translate 0.5s var(--ease-out), box-shadow 0.5s;
+  }
+  .card:hover { translate: 0 -6px; }
+  .card-media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  .card-media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: scale 1.2s var(--ease-out); }
+  .card:hover .card-media :global(img) { scale: 1.06; }
+  .kicker {
+    position: absolute; left: 1rem; bottom: 1rem; background: var(--paper); color: var(--ink);
+    font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 999px;
+  }
+  .card--optimist .kicker { background: var(--sun); }
+  .card-body { padding: 1.4rem 1.5rem 1.6rem; }
+  h3 { font-size: var(--step-2); }
+  .facts { display: grid; gap: 0.55rem; margin: 1rem 0; }
+  .facts div { display: grid; grid-template-columns: 5rem 1fr; gap: 0.75rem; padding-bottom: 0.55rem; border-bottom: 1px dashed var(--line); }
+  dt { font-size: 0.85rem; color: var(--ink-soft); font-weight: 600; padding-top: 0.1rem; }
+  dd { margin: 0; font-weight: 550; }
+  .fee dd { font-family: var(--font-display); font-size: 1.25rem; color: var(--sea-deep); }
+  .note { font-size: 0.97rem; color: var(--ink-soft); }
+  details { margin-top: 1rem; border-radius: 0.8rem; background: var(--foam); }
+  summary { cursor: pointer; padding: 0.7rem 1rem; font-weight: 650; color: var(--sea-deep); list-style: none; display: flex; justify-content: space-between; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; font-size: 1.3rem; line-height: 1; transition: rotate 0.3s var(--ease-out); }
+  details[open] summary::after { rotate: 45deg; }
+  details::details-content { block-size: 0; overflow: clip; transition: block-size 0.45s var(--ease-out), content-visibility 0.45s allow-discrete; }
+  details[open]::details-content { block-size: auto; }
+  :global(html) { interpolate-size: allow-keywords; }
+  .cur { padding: 0 1rem 0.9rem; }
+  .cur h4 { font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; color: var(--sea); margin: 0.2rem 0 0.4rem; }
+  .cur ul { padding-left: 1.1rem; font-size: 0.95rem; display: grid; gap: 0.2rem; }
+  .cur li::marker { color: var(--sun); }
+  .pdf { display: inline-block; margin-top: 1rem; font-weight: 600; color: var(--sea); text-underline-offset: 3px; }
+
+  /* Dönemler pisti */
+  .terms { margin-top: clamp(3rem, 7vw, 5rem); background: var(--sea-deep); color: var(--paper); border-radius: calc(var(--radius) + 0.4rem); padding: clamp(1.5rem, 4vw, 2.5rem); overflow: hidden; }
+  .terms-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; align-items: baseline; }
+  .terms-head p { color: oklch(0.88 0.03 230); font-size: 0.97rem; }
+  .terms h3 { font-size: var(--step-1); }
+  .track { position: relative; padding-top: 4.2rem; margin-top: 1rem; }
+  .track::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 3.6rem; height: 10px;
+    background: radial-gradient(circle at 5px 10px, transparent 5px, var(--sea) 5.5px) 0 0 / 20px 10px repeat-x;
+    opacity: 0.6;
+  }
+  .track ol { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+  .track li { border-left: 2px solid oklch(1 0 0 / 0.25); padding: 0.4rem 0 0.2rem 0.75rem; }
+  .tn { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sun-soft); font-weight: 700; }
+  .td { font-family: var(--font-display); font-size: var(--step-1); white-space: nowrap; }
+  .track-boat { position: absolute; top: 0.6rem; left: 0; width: 60px; height: 60px; }
+  .track-boat :global(svg) { transform: scaleX(-1); }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .track-boat { animation: along linear both; animation-timeline: view(); animation-range: cover 10% cover 70%; }
+    }
+  }
+  @keyframes along { from { left: 0; rotate: -4deg; } 50% { rotate: 4deg; } to { left: calc(100% - 60px); rotate: -2deg; } }
+  @media (max-width: 760px) {
+    .track ol { grid-template-columns: 1fr 1fr; }
+    .track li:last-child { grid-column: span 2; }
+  }
+
+  .extra { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between; padding: 1.5rem clamp(1.5rem, 4vw, 2.5rem); border: 2px dashed var(--sea-light); border-radius: calc(var(--radius) + 0.4rem); }
+  .extra h3 { font-size: var(--step-1); }
+  .extra p { color: var(--ink-soft); max-width: 60ch; }
+</style>

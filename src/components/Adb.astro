@@ -1,0 +1,106 @@
+---
+import { Image, Picture } from 'astro:assets';
+import { adbSteps } from '../data/site';
+import { adbImg, galleryImg } from '../lib/images';
+---
+<section id="adb" class="section adb" data-buoy="Amatör Denizci">
+  <div class="wrap">
+    <div class="intro">
+      <div class="reveal">
+        <p class="eyebrow">Amatör Denizci Belgesi</p>
+        <h2 class="h2">Kendi teknenizin kaptanı olun</h2>
+        <p class="lead">ADB için zorunlu olan uygulama eğitimini, Ulaştırma ve Altyapı Bakanlığı ile Türkiye Yelken Federasyonu işbirliğiyle kulübümüzde, kendi teknelerimizde veriyoruz.</p>
+        <p class="sub">Başvuru birkaç adımda tamamlanıyor. Aşağıdaki rehberi adım adım takip edebilirsiniz; takıldığınız yerde bizi arayın.</p>
+      </div>
+      <figure class="adb-photo reveal">
+        <Picture src={galleryImg('g05.jpg')} formats={['avif', 'webp']} widths={[500, 900]} sizes="(max-width: 900px) 92vw, 40vw" alt="ADB uygulama eğitimini tamamlayan kursiyerler kulüp binası önünde" />
+        <figcaption>Temmuz 2025 ADB uygulama eğitimi mezunları</figcaption>
+      </figure>
+    </div>
+
+    <div class="guide reveal" data-guide>
+      <ol class="steps" role="tablist" aria-label="ADB başvuru adımları" aria-orientation="vertical">
+        {adbSteps.map((s, i) => (
+          <li role="presentation">
+            <button role="tab" id={`adb-tab-${i}`} aria-controls={`adb-panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+              <span class="i">{i + 1}</span>
+              <span><strong>{s.title}</strong><small>{s.text}</small></span>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <div class="screen">
+        <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>ADB başvuru rehberi</span></div>
+        {adbSteps.map((s, i) => (
+          <div class="panel" role="tabpanel" id={`adb-panel-${i}`} aria-labelledby={`adb-tab-${i}`} hidden={i !== 0}>
+            <Image src={adbImg(s.img)} widths={[600, 1017]} sizes="(max-width: 900px) 92vw, 55vw" alt={`Ekran görüntüsü: ${s.title}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const g = document.querySelector('[data-guide]');
+  if (g) {
+    const tabs = [...g.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, j) => {
+        const on = i === j;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')!)!.hidden = !on;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => {
+        if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(() => select(i));
+        else select(i);
+      });
+      t.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if (k === 'ArrowDown' || k === 'ArrowRight') { e.preventDefault(); select((i + 1) % tabs.length, true); }
+        if (k === 'ArrowUp' || k === 'ArrowLeft') { e.preventDefault(); select((i - 1 + tabs.length) % tabs.length, true); }
+        if (k === 'Home') { e.preventDefault(); select(0, true); }
+        if (k === 'End') { e.preventDefault(); select(tabs.length - 1, true); }
+      });
+    });
+  }
+</script>
+
+<style>
+  .adb { background: var(--paper-2); }
+  .intro { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-bottom: clamp(3rem, 6vw, 4.5rem); }
+  .sub { margin-top: 1rem; color: var(--ink-soft); max-width: 44ch; }
+  .adb-photo { margin: 0; }
+  .adb-photo :global(img) { border-radius: calc(var(--radius) + 0.4rem); box-shadow: var(--shadow); rotate: 1.5deg; }
+  figcaption { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.8rem; text-align: right; font-style: italic; }
+
+  .guide { display: grid; grid-template-columns: minmax(16rem, 0.8fr) 1.4fr; gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+  .steps { list-style: none; padding: 0; display: grid; gap: 0.35rem; counter-reset: s; }
+  .steps button {
+    width: 100%; display: flex; gap: 0.9rem; text-align: left; align-items: flex-start;
+    background: transparent; border: 0; border-radius: 1rem; padding: 0.8rem 0.9rem;
+    transition: background 0.25s;
+  }
+  .steps button:hover { background: oklch(1 0 0 / 0.6); }
+  .steps button[aria-selected='true'] { background: #fff; box-shadow: var(--shadow); }
+  .i { flex: none; width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--sea-light); font-weight: 700; font-size: 0.9rem; color: var(--sea); transition: background 0.25s, color 0.25s, border-color 0.25s; }
+  [aria-selected='true'] .i { background: var(--sea); border-color: var(--sea); color: #fff; }
+  .steps strong { display: block; font-weight: 650; }
+  .steps small { display: none; font-size: 0.93rem; color: var(--ink-soft); line-height: 1.45; margin-top: 0.2rem; }
+  [aria-selected='true'] small { display: block; }
+
+  .screen { position: sticky; top: 6rem; background: #fff; border-radius: 1rem; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--line); view-transition-name: adb-screen; }
+  .chrome { display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 0.9rem; background: var(--paper-2); border-bottom: 1px solid var(--line); }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .chrome span { margin-left: 0.8rem; font-size: 0.8rem; color: var(--ink-soft); background: #fff; padding: 0.15rem 0.8rem; border-radius: 999px; }
+  .panel :global(img) { width: 100%; }
+
+  @media (max-width: 900px) {
+    .intro, .guide { grid-template-columns: 1fr; }
+    .screen { position: static; order: -1; }
+  }
+</style>

@@ -1,0 +1,144 @@
+---
+import { Picture } from 'astro:assets';
+import { galleryImg } from '../lib/images';
+import Optimist from './Optimist.astro';
+import Wind from './Wind.astro';
+
+const wave = (amp: number, len: number, y: number) => {
+  // 2880 geniş, kusursuz tekrar eden dalga
+  let d = `M0 ${y}`;
+  for (let x = 0; x < 2880; x += len) d += ` q ${len / 4} ${-amp} ${len / 2} 0 t ${len / 2} 0`;
+  return d + ` V 200 H 0 Z`;
+};
+---
+<section class="hero" data-buoy="Başlangıç">
+  <div class="sky" aria-hidden="true">
+    <div class="sun"></div>
+    <!-- Çandarlı Kalesi silüeti -->
+    <svg class="castle" viewBox="0 0 420 160" preserveAspectRatio="xMidYMax meet">
+      <path d="M10 160 V92 h14 v-10 h10 v10 h12 v-10 h10 v10 h12 V60 h14 v-12 h10 v12 h12 v-12 h10 v12 h14 v40 h20 V84 h12 v-10 h10 v10 h12 v-10 h10 v10 h12 V44 h14 v-12 h10 v12 h12 v-12 h10 v12 h14 v48 h18 V88 h12 v-10 h10 v10 h12 v-10 h10 v10 h14 V160 Z" fill="currentColor" />
+      <path d="M96 100 h6 v14 h-6z M300 92 h6 v14 h-6z M196 108 h6 v14 h-6z" fill="var(--paper)" opacity="0.35" />
+    </svg>
+  </div>
+
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">2008’den beri · Çandarlı, İzmir</p>
+      <h1>Çandarlı körfezinde <em>rüzgârla</em> büyüyoruz.</h1>
+      <p class="lead">Çocuklara, gençlere ve yetişkinlere yelken öğreten gönüllü bir kulübüz. İlk tramolanız da yarış takımına giden yolunuz da burada başlar.</p>
+      <div class="hero-actions">
+        <a class="btn btn--sun" href="#egitimler">2026 eğitimleri
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+        </a>
+        <a class="btn btn--ghost" href="#basvuru">Kayıt ve başvuru</a>
+      </div>
+      <Wind />
+    </div>
+
+    <div class="hero-photos">
+      <figure class="ph ph-main">
+        <Picture src={galleryImg('g25.jpg')} formats={['avif', 'webp']} widths={[480, 800]} sizes="(max-width: 900px) 90vw, 40vw" alt="Can yelekli bir kız çocuğu optimistiyle tek başına seyrediyor" loading="eager" fetchpriority="high" />
+      </figure>
+      <figure class="ph ph-polaroid">
+        <Picture src={galleryImg('g27.jpg')} formats={['avif', 'webp']} widths={[320, 480]} sizes="220px" alt="Can yeleği giymiş küçük Lara gülümsüyor" loading="eager" />
+        <figcaption>İlk günümüz ☀︎</figcaption>
+      </figure>
+      <figure class="ph ph-small">
+        <Picture src={galleryImg('g18.jpg')} formats={['avif', 'webp']} widths={[320, 480]} sizes="200px" alt="Gün batımında iskelede dizili eğitim optimistleri" loading="eager" />
+      </figure>
+    </div>
+  </div>
+
+  <div class="sea" aria-hidden="true">
+    <div class="fleet">
+      <span class="f f1"><Optimist /></span>
+      <span class="f f2"><Optimist sail="var(--sun-soft)" /></span>
+      <span class="f f3"><Optimist /></span>
+    </div>
+    <svg class="w w1" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d={wave(26, 480, 60)} /></svg>
+    <svg class="w w2" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d={wave(20, 360, 80)} /></svg>
+    <svg class="w w3" viewBox="0 0 2880 200" preserveAspectRatio="none"><path d={wave(14, 640, 100)} /></svg>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative; isolation: isolate;
+    min-height: 100svh; padding-top: clamp(6.5rem, 13vh, 8.5rem); padding-bottom: 10rem;
+    background: linear-gradient(180deg, oklch(0.95 0.035 215) 0%, var(--paper) 55%, oklch(0.93 0.05 70) 100%);
+    overflow: hidden;
+  }
+  .sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .sun {
+    position: absolute; right: calc(4% + clamp(240px, 32vw, 460px) * 0.3); bottom: 9.5rem; width: clamp(120px, 14vw, 210px); aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 45%, oklch(0.86 0.13 75), var(--sun) 70%);
+    box-shadow: 0 0 120px 40px oklch(0.85 0.13 70 / 0.35);
+  }
+  .castle { position: absolute; right: 4%; bottom: 7.6rem; width: clamp(240px, 32vw, 460px); color: oklch(0.6 0.09 40 / 0.55); }
+
+  .hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; position: relative; z-index: 2; }
+  h1 { font-size: clamp(2.5rem, 1.8rem + 3vw, 4.4rem); font-weight: 520; margin: 0.4em 0 0.45em; font-variation-settings: 'SOFT' 100, 'WONK' 1; }
+  h1 em { font-style: italic; color: var(--sea); font-weight: 480; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.6rem 0 1.8rem; }
+
+  .hero-photos { position: relative; aspect-ratio: 1 / 0.9; max-height: 64vh; justify-self: center; width: 100%; }
+  .ph { position: absolute; margin: 0; }
+  .ph :global(picture) { display: block; height: 100%; }
+  .ph :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .ph-main { inset: 4% 4% 14% 8%; border-radius: 46% 54% 42% 58% / 52% 44% 56% 48%; overflow: hidden; box-shadow: var(--shadow); }
+  .ph-main :global(img) { object-position: 30% 50%; }
+  .ph-polaroid {
+    width: 40%; left: -4%; bottom: 0; padding: 0.6rem 0.6rem 0; background: #fff; rotate: -6deg;
+    box-shadow: var(--shadow); border-radius: 4px;
+  }
+  .ph-polaroid :global(img) { aspect-ratio: 1; }
+  .ph-polaroid figcaption { font-family: var(--font-display); font-style: italic; text-align: center; padding: 0.35rem 0 0.5rem; font-size: 1rem; }
+  .ph-small { width: 34%; right: -2%; top: -4%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 6px solid var(--paper); box-shadow: var(--shadow); rotate: 8deg; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ph-polaroid { animation: float 7s ease-in-out infinite; }
+    .ph-small { animation: float 9s ease-in-out -3s infinite; }
+    .hero-copy > * { animation: rise 0.9s var(--ease-out) both; }
+    .hero-copy > :nth-child(2) { animation-delay: 0.08s; }
+    .hero-copy > :nth-child(3) { animation-delay: 0.16s; }
+    .hero-copy > :nth-child(4) { animation-delay: 0.24s; }
+    .hero-copy > :nth-child(5) { animation-delay: 0.32s; }
+  }
+  @keyframes float { 50% { translate: 0 -10px; } }
+  @keyframes rise { from { opacity: 0; translate: 0 1.5rem; } }
+
+  /* Deniz */
+  .sea { position: absolute; left: 0; right: 0; bottom: 0; height: 11rem; z-index: 1; pointer-events: none; }
+  .w { position: absolute; bottom: 0; left: 0; width: 200%; max-width: none; height: 100%; }
+  .w1 path { fill: oklch(0.72 0.1 225 / 0.55); }
+  .w2 path { fill: oklch(0.55 0.13 238 / 0.7); }
+  .w3 path { fill: var(--sea-deep); }
+  .w1 { height: 85%; bottom: 12%; }
+  .w2 { height: 70%; bottom: 0; }
+  .w3 { height: 48%; }
+  .fleet { position: absolute; inset: 0; }
+  .f { position: absolute; width: 58px; height: 58px; bottom: 5.4rem; }
+  .f1 { left: 12%; }
+  .f2 { left: 46%; width: 44px; height: 44px; bottom: 6.4rem; }
+  .f3 { left: 74%; width: 50px; height: 50px; bottom: 5.8rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .w1 { animation: drift 38s linear infinite; }
+    .w2 { animation: drift 26s linear infinite reverse; }
+    .w3 { animation: drift 18s linear infinite; }
+    .f { animation: sail 46s linear infinite, bob 3.4s ease-in-out infinite; }
+    .f2 { animation-duration: 60s, 2.9s; animation-delay: -20s, -1s; }
+    .f3 { animation-duration: 52s, 3.8s; animation-delay: -35s, -2s; }
+  }
+  @keyframes drift { to { transform: translateX(-50%); } }
+  @keyframes sail { from { translate: -40vw 0; } to { translate: 60vw 0; } }
+  @keyframes bob { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(3deg) translateY(4px); } }
+  .f :global(svg) { transform: scaleX(-1); }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-photos { max-width: 520px; width: 100%; margin-inline: auto; }
+    .sun { right: 8%; }
+  }
+</style>

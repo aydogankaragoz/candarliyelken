@@ -1,0 +1,167 @@
+---
+import { u } from '../lib/url';
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import { club } from '../data/site';
+import SailCourse from '../components/SailCourse.astro';
+
+interface Props { title?: string; description?: string; course?: boolean }
+const {
+  title = `${club.name}`,
+  description = 'Çandarlı körfezinde 2008’den beri çocuklara, gençlere ve yetişkinlere yelken öğretiyoruz. Optimist yaz okulu, genç yetişkin yelken, yatçılık ve Amatör Denizci Belgesi uygulama eğitimleri.',
+  course = true,
+} = Astro.props;
+
+const nav = [
+  { href: '/#egitimler', label: 'Eğitimler' },
+  { href: '/#yolculuk', label: 'Sporcu yolu' },
+  { href: '/#adb', label: 'Amatör Denizci' },
+  { href: '/#haberler', label: 'Haberler' },
+  { href: '/galeri', label: 'Galeri' },
+  { href: '/#iletisim', label: 'İletişim' },
+];
+---
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f8f4ec" />
+    <link rel="icon" type="image/png" href={u("/favicon.png")} />
+    <link rel="apple-touch-icon" href={u("/apple-touch-icon.png")} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta name="generator" content={Astro.generator} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org', '@type': 'SportsClub', name: club.name, foundingDate: '2008',
+      telephone: club.phone, email: club.email, sport: 'Sailing',
+      address: { '@type': 'PostalAddress', streetAddress: 'Çandarlı Mah. Bergama Cad. No:25', addressLocality: 'Dikili', addressRegion: 'İzmir', addressCountry: 'TR' },
+      geo: { '@type': 'GeoCoordinates', latitude: club.coords.lat, longitude: club.coords.lon },
+    })} />
+  </head>
+  <body>
+    <a class="skip" href="#main">İçeriğe geç</a>
+    <header class="site-header" data-header>
+      <div class="wrap bar">
+        <a class="brand" href={u("/")} aria-label="Çandarlı Yelken ana sayfa">
+          <Image src={logo} alt="" width={52} height={52} loading="eager" />
+          <span><strong>Çandarlı Yelken</strong><small>ve Su Sporları Spor Kulübü</small></span>
+        </a>
+        <nav class="nav" aria-label="Ana menü">
+          <ul>{nav.map((n) => <li><a href={u(n.href)}>{n.label}</a></li>)}</ul>
+        </nav>
+        <a class="btn btn--sun cta" href={u("/#basvuru")}>Kayıt ol</a>
+        <button class="menu-btn" popovertarget="mobile-nav" aria-label="Menüyü aç">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
+        </button>
+      </div>
+      <nav id="mobile-nav" class="mobile-nav" popover aria-label="Mobil menü">
+        <button class="close" popovertarget="mobile-nav" popovertargetaction="hide" aria-label="Menüyü kapat">×</button>
+        <ul>
+          {nav.map((n) => <li><a href={u(n.href)}>{n.label}</a></li>)}
+          <li><a class="btn btn--sun" href={u("/#basvuru")}>Kayıt ol</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    {course && <SailCourse />}
+
+    <main id="main"><slot /></main>
+
+    <footer class="site-footer">
+      <svg class="footer-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 40 C 240 0 480 80 720 40 S 1200 0 1440 40 V80 H0Z" fill="currentColor" />
+      </svg>
+      <div class="wrap footer-grid">
+        <div>
+          <p class="f-title">Çandarlı Yelken</p>
+          <p>{club.address}</p>
+          <p><a href={club.phoneHref}>{club.phone}</a> · <a href={`mailto:${club.email}`}>{club.email}</a></p>
+        </div>
+        <div class="f-tyf">
+          <p>Türkiye Yelken Federasyonu üyesi kulüp</p>
+          <a href="https://www.tyf.org.tr" target="_blank" rel="noopener">tyf.org.tr ↗</a>
+        </div>
+        <p class="f-copy">© 2008–{new Date().getFullYear()} {club.name}. Rüzgâr bizden, cesaret sizden.</p>
+      </div>
+    </footer>
+
+    <script>
+      // Kaydırınca başlığın zemini dolsun
+      const header = document.querySelector('[data-header]');
+      const onScroll = () => header?.toggleAttribute('data-scrolled', scrollY > 24);
+      addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+      // Mobil menüde bağlantıya tıklayınca kapansın
+      document.querySelectorAll('#mobile-nav a').forEach((a) =>
+        a.addEventListener('click', () => (document.getElementById('mobile-nav') as HTMLElement & { hidePopover(): void })?.hidePopover()),
+      );
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip { position: absolute; left: 1rem; top: -4rem; z-index: 100; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; border-radius: 0.5rem; }
+  .skip:focus { top: 1rem; }
+
+  .site-header {
+    position: fixed; inset: 0 0 auto; z-index: 50;
+    transition: background 0.3s, box-shadow 0.3s, backdrop-filter 0.3s;
+  }
+  .site-header[data-scrolled] {
+    background: oklch(0.975 0.012 85 / 0.82);
+    backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .bar { display: flex; align-items: center; gap: 1.5rem; padding-block: 0.7rem; }
+  .brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; margin-right: auto; }
+  .brand img { width: 52px; height: 52px; transition: transform 0.6s var(--ease-out); }
+  .brand:hover img { transform: rotate(-12deg); }
+  .brand span { display: grid; line-height: 1.1; }
+  .brand strong { font-family: var(--font-display); font-size: 1.25rem; font-weight: 620; }
+  .brand small { font-size: 0.78rem; color: var(--ink-soft); }
+  .nav ul { display: flex; gap: 0.25rem; list-style: none; padding: 0; }
+  .nav a {
+    display: block; padding: 0.45rem 0.8rem; border-radius: 999px;
+    text-decoration: none; font-weight: 560; font-size: 0.98rem;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: oklch(0.52 0.14 240 / 0.1); }
+  .cta { padding: 0.6em 1.2em; }
+  .menu-btn { display: none; background: none; border: 0; width: 44px; height: 44px; padding: 8px; border-radius: 12px; }
+  .menu-btn:hover { background: oklch(0.52 0.14 240 / 0.1); }
+
+  .mobile-nav {
+    inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
+    border: 0; padding: 5rem var(--gutter) 2rem;
+    background: var(--sea-deep); color: var(--paper);
+    opacity: 0; translate: 0 -2rem;
+    transition: opacity 0.35s, translate 0.45s var(--ease-out), display 0.45s allow-discrete, overlay 0.45s allow-discrete;
+  }
+  .mobile-nav:popover-open { opacity: 1; translate: 0 0; }
+  @starting-style { .mobile-nav:popover-open { opacity: 0; translate: 0 -2rem; } }
+  .mobile-nav ul { list-style: none; padding: 0; display: grid; gap: 0.4rem; }
+  .mobile-nav a:not(.btn) { font-family: var(--font-display); font-size: var(--step-3); text-decoration: none; }
+  .mobile-nav .btn { margin-top: 1.5rem; }
+  .mobile-nav .close { position: absolute; top: 1rem; right: var(--gutter); background: none; border: 0; font-size: 2.5rem; line-height: 1; color: inherit; width: 48px; height: 48px; }
+
+  @media (max-width: 980px) {
+    .nav, .cta { display: none; }
+    .menu-btn { display: block; }
+  }
+  @media (max-width: 420px) { .brand small { display: none; } }
+
+  .site-footer { position: relative; background: var(--sea-deep); color: oklch(0.92 0.02 230); margin-top: 4rem; padding: 3rem 0 2.5rem; }
+  .footer-wave { position: absolute; bottom: 100%; left: 0; width: 100%; height: 60px; color: var(--sea-deep); }
+  .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; }
+  .footer-grid a { color: var(--sun-soft); }
+  .f-title { font-family: var(--font-display); font-size: var(--step-2); color: var(--paper); }
+  .f-tyf { justify-self: end; text-align: right; }
+  .f-copy { grid-column: 1 / -1; font-size: var(--step--1); opacity: 0.75; border-top: 1px solid oklch(1 0 0 / 0.15); padding-top: 1.25rem; }
+  @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; } .f-tyf { justify-self: start; text-align: left; } }
+</style>

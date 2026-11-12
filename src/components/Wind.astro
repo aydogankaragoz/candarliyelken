@@ -1,0 +1,83 @@
+---
+import { club } from '../data/site';
+const { lat, lon } = club.coords;
+---
+<!-- Çandarlı'da şu an: Open-Meteo'dan anlık rüzgâr ve deniz suyu sıcaklığı (anahtarsız, açık veri) -->
+<aside class="wind" data-wind data-lat={lat} data-lon={lon} aria-live="polite">
+  <div class="dial" aria-hidden="true">
+    <span class="n">K</span>
+    <svg class="arrow" viewBox="0 0 40 40"><path d="M20 4 L27 30 L20 25 L13 30 Z" fill="currentColor" /></svg>
+  </div>
+  <div class="txt">
+    <p class="label">Çandarlı’da şu an</p>
+    <p class="big"><span data-w="speed">—</span> <small>knot</small> <span class="name" data-w="name"></span></p>
+    <p class="meta"><span data-w="meta">Rüzgâr verisi yükleniyor…</span></p>
+    <p class="verdict" data-w="verdict"></p>
+  </div>
+</aside>
+
+<script>
+  const el = document.querySelector<HTMLElement>('[data-wind]');
+  if (el) {
+    const { lat, lon } = el.dataset;
+    const $ = (k: string) => el.querySelector<HTMLElement>(`[data-w="${k}"]`)!;
+    // Ege'nin geleneksel rüzgâr adları
+    const names = ['Yıldız', 'Poyraz', 'Gündoğusu', 'Keşişleme', 'Kıble', 'Lodos', 'Günbatısı', 'Karayel'];
+    const beaufort = (kn: number) => {
+      const i = [1, 4, 7, 11, 17, 22, 28, 34, 41, 48, 56, 64].findIndex((v) => kn < v);
+      return i < 0 ? 12 : i;
+    };
+    const verdict = (kn: number) =>
+      kn < 3 ? 'Deniz çarşaf gibi. Bugün düğüm atma günü.' :
+      kn < 12 ? 'Optimist için harika bir gün!' :
+      kn < 18 ? 'Hareketli bir gün. Gençler ve yatçılar için keyifli.' :
+      kn < 25 ? 'Sert rüzgâr. Bugün deneyimli yelkencilerin günü.' :
+      'Bugün kıyıda kalıp teori çalışıyoruz.';
+
+    const f = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m&wind_speed_unit=kn&timezone=Europe%2FIstanbul`;
+    const m = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=sea_surface_temperature&timezone=Europe%2FIstanbul`;
+
+    Promise.allSettled([fetch(f).then((r) => r.json()), fetch(m).then((r) => r.json())]).then(([w, s]) => {
+      if (w.status !== 'fulfilled' || !w.value?.current) throw new Error('no data');
+      const c = w.value.current;
+      const kn = Math.round(c.wind_speed_10m);
+      const dir = c.wind_direction_10m as number;
+      const sea = s.status === 'fulfilled' ? s.value?.current?.sea_surface_temperature : undefined;
+      $('speed').textContent = String(kn);
+      $('name').textContent = `${names[Math.round(dir / 45) % 8]} · ${beaufort(kn)} bofor`;
+      $('meta').textContent = [`Hamle ${Math.round(c.wind_gusts_10m)} kn`, `Hava ${Math.round(c.temperature_2m)}°`, sea != null ? `Deniz ${Math.round(sea)}°` : ''].filter(Boolean).join(' · ');
+      $('verdict').textContent = verdict(kn);
+      // Ok rüzgârın estiği yönü gösterir (geldiği yönün tersi)
+      el.style.setProperty('--dir', `${dir + 180}deg`);
+      el.style.setProperty('--spin', `${Math.max(0.6, 6 - kn / 4)}s`);
+      el.dataset.ready = '';
+    }).catch(() => {
+      $('meta').textContent = 'Rüzgâr verisine şu an ulaşılamıyor.';
+    });
+  }
+</script>
+
+<style>
+  .wind {
+    --dir: 0deg;
+    display: flex; gap: 1rem; align-items: center;
+    padding: 0.9rem 1.2rem 0.9rem 0.9rem; border-radius: var(--radius);
+    background: oklch(1 0 0 / 0.65); backdrop-filter: blur(8px);
+    border: 1px solid oklch(0.85 0.03 230 / 0.7);
+    max-width: 26rem; box-shadow: var(--shadow);
+  }
+  .dial {
+    position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%;
+    border: 2px dashed var(--sea-light); display: grid; place-items: center; color: var(--sea);
+  }
+  .n { position: absolute; top: -0.65rem; font-size: 0.7rem; font-weight: 700; background: var(--paper); padding: 0 0.2rem; border-radius: 4px; color: var(--ink-soft); }
+  .arrow { width: 38px; height: 38px; rotate: var(--dir); transition: rotate 1.4s var(--ease-out); }
+  [data-ready] .arrow { color: var(--sun); }
+  .label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+  .big { font-family: var(--font-display); font-size: 1.7rem; line-height: 1.1; }
+  .big small { font-family: var(--font-body); font-size: 0.9rem; color: var(--ink-soft); }
+  .name { font-family: var(--font-body); font-size: 0.95rem; font-weight: 650; color: var(--sea); white-space: nowrap; }
+  .meta { font-size: 0.9rem; color: var(--ink-soft); }
+  .verdict { font-weight: 600; font-size: 0.95rem; }
+  .verdict:empty { display: none; }
+</style>
