@@ -10,6 +10,8 @@ export const club = {
   email: 'info@candarliyelken.org.tr',
   iban: 'TR97 0006 4000 0013 4660 6074 11',
   coords: { lat: 38.937447, lon: 26.935858 },
+  // Google Maps'teki kulüp kaydı (haritada adın görünmesi için)
+  mapsPlaceId: '0x14ba3c58374b179d%3A0x86eca60deaae0887',
   contacts: [
     { name: 'İrfan Bora', phone: '+90 532 462 10 46', href: 'tel:+905324621046' },
     { name: 'Gamze Yıldırım', phone: '+90 541 263 65 83', href: 'tel:+905412636583' },

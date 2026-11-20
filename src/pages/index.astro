@@ -136,7 +136,7 @@ const years = new Date().getFullYear() - club.founded;
           title="Çandarlı Yelken Kulübü konumu"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          src={`https://www.google.com/maps?q=${club.coords.lat},${club.coords.lon}&z=16&hl=tr&output=embed`}
+          src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2000!2d${club.coords.lon}!3d${club.coords.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s${club.mapsPlaceId}!2s${encodeURIComponent('Çandarlı Yelken Kulübü')}!5e0!3m2!1str!2str!4v1763640000000!5m2!1str!2str`}
         ></iframe>
       </div>
     </div>
