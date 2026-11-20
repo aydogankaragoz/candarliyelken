@@ -1,8 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// GitHub Pages: https://aydogankaragoz.github.io/candarliyelken/
+// Yayın: https://candarliyelken.org.tr/
 export default defineConfig({
-  site: 'https://aydogankaragoz.github.io',
-  base: '/candarliyelken/',
+  site: 'https://candarliyelken.org.tr',
+  base: '/',
 });

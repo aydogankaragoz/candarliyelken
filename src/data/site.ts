@@ -157,12 +157,12 @@ export const news = [
 ];
 
 export const docs = [
-  { title: 'Kulüp üyelik başvuru formu', href: 'https://candarliyelken.org.tr/belgeler/uyelik_basvuru_formu.doc', kind: 'DOC' },
-  { title: 'Kulüple ilişki belgesi', href: 'https://candarliyelken.org.tr/belgeler/kuluple_iliski_belgesi.doc', kind: 'DOC' },
-  { title: 'TYF 2026 sporcu lisansı talimatı ve ücretleri', href: 'https://candarliyelken.org.tr/belgeler/tyf_lisans_vize_2026.jpg', kind: 'JPG' },
+  { title: 'Kulüp üyelik başvuru formu', href: 'https://candarliyelken.org.tr/docs/uyelik_basvuru_formu.odt', kind: 'DOC' },
+  { title: 'Kulüple ilişki belgesi', href: 'https://candarliyelken.org.tr/docs/kuluple_iliski_belgesi.doc', kind: 'DOC' },
+  { title: 'TYF 2026 sporcu lisansı talimatı ve ücretleri', href: 'https://candarliyelken.org.tr/docs/tyf_lisans_vize_2026.jpg', kind: 'JPG' },
   { title: 'Neden Çandarlı Yelken?', href: '/docs/neden-candarli-yelken.pdf', kind: 'PDF' },
   { title: 'Kulüp tüzüğü (2023)', href: '/docs/CYK_Tuzuk_2023.pdf', kind: 'PDF' },
-  { title: 'Olağanüstü genel kurul YK kararı', href: 'https://candarliyelken.org.tr/belgeler/genel_kurul_YK_karari.pdf', kind: 'PDF' },
+  { title: 'Olağanüstü genel kurul YK kararı', href: 'https://candarliyelken.org.tr/docs/genel_kurul_YK_karari.pdf', kind: 'PDF' },
   { title: '2024 genel kurul faaliyet raporu', href: 'https://cloud.candarliyelken.org.tr/s/Jc4RZ2QfjEBJHCw', kind: 'Bulut' },
   { title: '2024 Haziran sonu mali durum', href: 'https://cloud.candarliyelken.org.tr/s/JrMj73Jf3KF94te', kind: 'Bulut' },
 ];
