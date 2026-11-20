@@ -9,7 +9,7 @@ export const club = {
   phoneHref: 'tel:+905350332880',
   email: 'info@candarliyelken.org.tr',
   iban: 'TR97 0006 4000 0013 4660 6074 11',
-  coords: { lat: 38.9356, lon: 26.9395 },
+  coords: { lat: 38.937447, lon: 26.935858 },
   contacts: [
     { name: 'İrfan Bora', phone: '+90 532 462 10 46', href: 'tel:+905324621046' },
     { name: 'Gamze Yıldırım', phone: '+90 541 263 65 83', href: 'tel:+905412636583' },

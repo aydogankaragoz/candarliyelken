@@ -120,7 +120,7 @@ const years = new Date().getFullYear() - club.founded;
     <div class="wrap contact-grid">
       <div class="reveal">
         <p class="eyebrow">İletişim</p>
-        <h2 class="h2">İskeleye bekleriz</h2>
+        <h2 class="h2">Kulübe bekleriz</h2>
         <address>
           <p class="addr">{club.address}</p>
           <p><a class="big-link" href={club.phoneHref}>{club.phone}</a></p>
@@ -129,13 +129,14 @@ const years = new Date().getFullYear() - club.founded;
         <ul class="people">
           {club.contacts.map((c) => <li><span>{c.name}</span><a href={c.href}>{c.phone}</a></li>)}
         </ul>
-        <a class="btn" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Çandarlı Yelken ve Su Sporları Kulübü, ' + club.address)}`} target="_blank" rel="noopener">Yol tarifi ↗</a>
+        <a class="btn" href={`https://www.google.com/maps/dir/?api=1&destination=${club.coords.lat},${club.coords.lon}`} target="_blank" rel="noopener">Yol tarifi ↗</a>
       </div>
       <div class="map reveal">
         <iframe
           title="Çandarlı Yelken Kulübü konumu"
           loading="lazy"
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${club.coords.lon - 0.02}%2C${club.coords.lat - 0.012}%2C${club.coords.lon + 0.02}%2C${club.coords.lat + 0.012}&layer=mapnik`}
+          referrerpolicy="no-referrer-when-downgrade"
+          src={`https://www.google.com/maps?q=${club.coords.lat},${club.coords.lon}&z=16&hl=tr&output=embed`}
         ></iframe>
       </div>
     </div>
